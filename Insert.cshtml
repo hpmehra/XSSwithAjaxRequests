@@ -1,0 +1,74 @@
+﻿@model XSS_with_Ajax_Requests.Models.Employee
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Insert</h2>
+
+
+@using (Html.BeginForm())
+{
+
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+    
+    <fieldset>
+        <legend>Enter Details</legend>
+        <p id="error" style="color:red"></p>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.Name)
+                @Html.TextBoxFor(m => m.Name, new { @id = "Name"})
+                
+
+            </li>
+            <br />
+            <li>
+                @Html.LabelFor(m => m.Salary)
+                @Html.TextBoxFor(m => m.Salary, new { @id = "Salary", @type="number" })
+                
+            </li>
+        </ol>
+        <input type="button" id="submit" value="Insert" />
+    </fieldset>
+}
+<script src="~/Scripts/jquery-1.8.2.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('input[name="__RequestVerificationToken"]').val("Estj-MvAS6-fi0RSGJiFYlD0E_NyCl7KD0MhsASpExYimpdEwSMT-ZUC-MKqPMxWwslIguSTUw9xGNkHw5nG2-q8jgohZXx1OL9WkXokadU1");
+        
+
+        $('#submit').click(function () {
+            var headers = {};
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var name=$('#Name').val();
+            var salary=$('#Salary').val();
+            headers['__RequestVerificationToken'] = token;
+           
+            if ($('#Name').val() != "" && $('#Salary').val() != "") {
+                $('#error').html('');
+                alert(token);
+                $.ajax({
+                    url: 'Employee/SaveData',
+                    cache: false,
+                    async: true,
+                    data: { 'name': name, 'salary': salary },
+                    type: "POST",
+                    headers: headers,
+                    success: function (data) { alert(data);},
+                    error: function () { alert("Validation token not matching") }
+                });
+                $('#Name').val('');
+                $('#Salary').val('');
+               
+            }
+
+            else {
+                $('#error').html('Please fill all fields first');
+            }
+        });
+    });
+
+</script>
